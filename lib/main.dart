@@ -16,17 +16,20 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: StateNotifierProvider<CounterController, CounterState>(
-        create: (context) => CounterController(),
-        child: const MyHomePage(),
-      ),
+      home: MyHomePage.create(),
     );
   }
 }
 
+@immutable
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key key}) : super(key: key);
+  const MyHomePage._();
 
+  static Widget create() =>
+      StateNotifierProvider<CounterController, CounterState>(
+        create: (_) => CounterController(),
+        child: const MyHomePage._(),
+      );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,20 +43,28 @@ class MyHomePage extends StatelessWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '${Provider.of<CounterState>(context).count}',
-              style: Theme.of(context).textTheme.headline4,
-            ),
+            const CounterText(),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Provider.of<CounterController>(context, listen: false).increment();
-        },
+        onPressed: () => context.read<CounterController>().increment(),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
+    );
+  }
+}
+
+@immutable
+class CounterText extends StatelessWidget {
+  const CounterText();
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      context.select((CounterState s) => s.count).toString(),
+      style: Theme.of(context).textTheme.headline4,
     );
   }
 }
